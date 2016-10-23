@@ -1,6 +1,11 @@
 # Add ~/bin to the path
 export PATH="$HOME/bin:$PATH";
 
+brew_prefix=""
+if which brew &> /dev/null; then
+	brew_prefix=$(brew --prefix)
+fi
+
 source ~/dotfiles/shells/aliases
 
 # Load the shell dotfiles, and then some:

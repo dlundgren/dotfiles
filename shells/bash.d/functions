@@ -3,10 +3,7 @@
 # BASH FUNCTIONS
 # ----------------------------------------------------------------------
 
-brew_prefix=""
-if which brew &> /dev/null; then
-	brew_prefix=$(brew --prefix)
-fi
+
 
 ### DOTFILES
 brew_source() {
@@ -185,7 +182,7 @@ smiley() {
   else
       if [ $err == 0 ]
       then echo '^-^'
-      else echo "-.- $err"
+      else echo "${LRED}-.- $err${RESTORE}"
       fi
   fi
 }
