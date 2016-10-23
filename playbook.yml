@@ -1,0 +1,107 @@
+---
+- hosts: all
+  vars:
+    applications:
+      - 1password
+      - alfred
+      - bettertouchtool
+      - caffeine
+      - dropbox
+      - firefox
+      - google-chrome
+      - iterm2
+      - karabiner
+      - keka
+      - nvalt
+      #- packer
+      #- seil
+      #- shuttle
+      - skype
+      - sublime-text3
+      - thunderbird
+      - tunnelblick
+      - vagrant
+      - vagrant-manager
+      - virtualbox
+      - vlc
+    brew_taps:
+      - caskroom/cask
+      - caskroom/versions # for sublime-text3
+      - homebrew/binary
+      - homebrew/dupes
+      - homebrew/versions
+    dotfile_repo_username: dlundgren
+    brew_utils:
+      - autoconf
+      - autojump
+      - bash
+      - brew-cask
+      - cowsay
+      - git
+      - go
+      - gpg
+      - hub
+      - keybase
+      - mtr
+      - openssl
+      - ssh-copy-id
+    home: "{{ lookup('env', 'HOME' }}"
+  tasks:
+    - name: HOMEBREW | Install required Taps
+      shell: brew tap {{ item }}
+      with_items: brew_taps
+
+    - name: HOMEBREW | Install Cask
+      shell: brew install brew-cask
+
+    - name: UTILS | Install
+      homebrew:
+        name: "{{ item }}"
+        state: present
+      with_items: brew_utils
+
+    - name: UTILS | Cleanup
+      shell: brew cleanup
+
+    - name: CASKS | load list
+      shell: brew cask list | grep {{ item }}
+      register: installed_applications
+      with_items: applications
+      ignore_errors: true
+
+    - name: CASKS | install
+      shell: brew cask install {{ item }}
+      with_items: applications
+      when: "{{ item not in installed_applications.results|map(attribute='stdout') }}"
+
+#    - name: SETUP | system settings
+#      script: setup/system_settings.sh
+#      sudo: true
+
+#    - name: DOTFILES | Check for rcm
+#      stat:
+#        path: /usr/local/bin/rcup
+#      register: rcm_installed
+#
+#    - name: DOTFILES | Install rcm
+#      shell: brew tap thoughtbot/formulae && brew install rcm
+#      when: rcm_installed.stat.exists == false
+#
+#    - name: DOTFILES | Check .dotfiles exists
+#      stat:
+#        path: ~/.dotfiles/
+#      register: src_dir_exists
+#    - name: DOTFILES | Ensure .dotfiles exists
+#      file:
+#        path: ~/.dotfiles
+#        state: directory
+#    - name: DOTFILES | Clone thoughtbot/dotfiles
+#      git:
+#        repo: https://github.com/thoughtbot/dotfiles.git
+#        dest: ~/.dotfiles/thoughtbot
+#    - name: DOTFILES | Clone User dotfiles
+#      git:
+#        repo: "https://github.com/{{ dotfile_repo_username }}/dotfiles.git"
+#        dest: "~/.dotfiles/{{ dotfile_repo_username }}"
+#    - name: DOTFILES | Generate dotfiles
+#      shell: "env RCRC=~/.dotfiles/{{dotfile_repo_username}} rcup"

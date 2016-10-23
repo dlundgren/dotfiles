@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+# ----------------------------------------------------------------------
+# BASH FUNCTIONS
+# ----------------------------------------------------------------------
+
+brew_prefix=""
+if which brew &> /dev/null; then
+	brew_prefix=$(brew --prefix)
+fi
+
+### DOTFILES
+brew_source() {
+	if which brew &> /dev/null && [ -f "$brew_prefix/$1" ]; then
+		source "$brew_prefix/$1";
+	fi
+}
+dotfile-changes() {
+	curdir=$(pwd)
+	cd ~/dotfiles && git status
+	cd $curdir
+}
+save-dotfiles(){
+	curdir=$(pwd)
+	cd ~/dotfiles && git push
+	cd $curdir
+}
+
+## update dot files
+update-dotfiles(){
+	curdir=$(pwd)
+	cd ~/dotfiles && git pull && sh setup.sh
+	cd $curdir
+}
+
+## man page color and search hilighting
+export PAGER="less"
+man() {
+	env \
+		LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+		LESS_TERMCAP_md=$(printf "\e[1;31m") \
+		LESS_TERMCAP_me=$(printf "\e[0m") \
+		LESS_TERMCAP_se=$(printf "\e[0m") \
+		LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+		LESS_TERMCAP_ue=$(printf "\e[0m") \
+		LESS_TERMCAP_us=$(printf "\e[1;32m") \
+		man "$@"
+}
+
+####
+# completion
+####
+# @see http://lee.jarvis.co/ssh-host-completion/
+_complete_ssh_hosts () {
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  comp_ssh_hosts=`
+    if [ -f ~/.ssh/config ]; then
+      cat ~/.ssh/config |       grep "^Host " |       awk '{print $2}'
+    fi
+  `
+  COMPREPLY=( $(compgen -W "${comp_ssh_hosts}" -- $cur))
+  return 0
+}
+complete -F _complete_ssh_hosts ssh
+
+# Simple backup copy of files/directories
+# Usage: bak
+bu() {
+    bakdir="$HOME/.backup"
+
+    [ ! -d "$bakdir" ] && mkdir -p -m 700 "$bakdir"
+
+    for f in "$@"; do
+        f="`echo "$f" | sed 's!/\+$!!'`"   # strip trailing slashes
+        command cp -ai "$f" "$HOME/.backup/$f.bak`date +'%Y%m%d%H%M'`"
+    done
+}
+
+# Extract an archive (subdir will be made if the archive may contain multiple files)
+# TODO: find/write better solution, this is kinda ugly.
+# Usage: x
+ex() {
+    for prog in uncompress tar 7za unzip unrar unace tar gunzip bunzip2; do
+        if ! which $prog &>/dev/null; then
+            echo "${FUNCNAME[0]}(): Warning: Can't find program '$prog'."
+        fi
+    done
+
+    local is_tgz=0
+    local is_tbz2=0
+    local n=""
+
+    local ext="${1##*.}"
+    local ext_lc="`echo $ext | tr [:upper:] [:lower:]`"
+
+    # For .tar.gz and .tar.bz2, strip "both extensions", otherwise just strip one
+    case "$1" in
+        *.tar.gz)  n="`echo "$1" | sed 's/\.tar\..\+$//'`"; is_tgz=1  ;;
+        *.tar.bz2) n="`echo "$1" | sed 's/\.tar\..\+$//'`"; is_tbz2=1 ;;
+        *)         n="${1%.*}"
+    esac
+
+    case "$ext_lc" in
+        z)        uncompress "$1" ;;
+        tar)      mkdir "$n"; mv "$1" "$n"; cd "$n"; tar xvf "$1" ; mv "$1" ..; cd .. ;;
+        7z)       mkdir "$n"; mv "$1" "$n"; cd "$n"; 7za x "$1"   ; mv "$1" ..; cd .. ;;
+        zip)      mkdir "$n"; mv "$1" "$n"; cd "$n"; unzip "$1"   ; mv "$1" ..; cd .. ;;
+        rar)      mkdir "$n"; mv "$1" "$n"; cd "$n"; unrar x "$1" ; mv "$1" ..; cd .. ;;
+        ace)      mkdir "$n"; mv "$1" "$n"; cd "$n"; unace x "$1" ; mv "$1" ..; cd .. ;;
+        tgz)      mkdir "$n"; mv "$1" "$n"; cd "$n"; tar xvzf "$1"; mv "$1" ..; cd .. ;;
+        tbz|tbz2) mkdir "$n"; mv "$1" "$n"; cd "$n"; tar xvjf "$1"; mv "$1" ..; cd .. ;;
+        gz)
+            if [ $is_tgz ]; then
+                mkdir "$n"; mv "$1" "$n"; cd "$n"; tar xvzf "$1"; mv "$1" ..; cd ..
+            else
+                gunzip "$1"
+            fi ;;
+        bz2)
+            if [ $is_tbz2 ]; then
+                mkdir "$n"; mv "$1" "$n"; cd "$n"; tar xvjf "$1"; mv "$1" ..; cd ..
+            else
+                bunzip2 "$1"
+            fi ;;
+        *) echo "${FUNCNAME[0]}: Can't extract: unknown file extension $ext"; return 1
+           ;;
+    esac
+}
+pk () {
+    if [ $1 ] ; then
+        case $1 in
+            tbz)       tar cjvf $2.tar.bz2 $2      ;;
+            tgz)       tar czvf $2.tar.gz  $2       ;;
+            tar)      tar cpvf $2.tar  $2       ;;
+            bz2)    bzip $2 ;;
+            gz)        gzip -c -9 -n $2 > $2.gz ;;
+            zip)       zip -r $2.zip $2   ;;
+            7z)        7z a $2.7z $2    ;;
+            *)         echo "'$1' cannot be packed via pk()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Display the revision number of the current repository.
+svn_rev() {
+    svn info $@ | awk '/^Revision:/ {print $2}'
+}
+
+# Do an svn update and show the log messages since the last update.
+svn_uplog() {
+    local old_revision=`svn_rev $@`
+    local first_update=$((${old_revision} + 1))
+
+    svn up -q $@
+    if [ $(svn_rev $@) -gt ${old_revision} ]
+    then
+        svn log -v -rHEAD:${first_update} $@
+    else
+        echo "No Changes."
+    fi
+}
+genpass()
+{
+    cat /dev/urandom | tr -d -c 'a-zA-Z0-9' | fold -w 8 | head -1
+}
+
+function srch () {
+    if [ $# = 0 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+        echo -e "Find a word in files under the current directory ignoring .svn, log files and backups. Usage ${RED_FG}'srch word'$NC"
+        return
+    fi
+    grep -n -R $1 * | grep -v "\.svn" | grep -v "\.git" | grep -v "\.log" | grep -v "*~"
+}
+
+# use this function in PS1 to represent if the command that was running before exited with 0 code
+smiley() {
+  err=$?
+  if [ "$UID" == 0 ]; then
+      user=root;
+      if [ $err == 0 ]
+      then echo "$user ^-^"
+      else echo "$user -.- $err"
+        fi
+  else
+      if [ $err == 0 ]
+      then echo '^-^'
+      else echo "-.- $err"
+      fi
+  fi
+}
+# mkmine - recursively change ownership to $USER:$USER
+# usage:  mkmine, or
+#         mkmine
+function mkmine() { sudo chown -R ${USER}:${USER} ${1:-.}; }
+
+# sanitize - set file/directory owner and permissions to normal values (644/755)
+# usage: sanitize
+sanitize()
+{
+  chmod -R u=rwX,go=rX "$@"
+  chown -R ${USER}:users "$@"
+}

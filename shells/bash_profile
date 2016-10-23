@@ -1,0 +1,31 @@
+# Add ~/bin to the path
+export PATH="$HOME/bin:$PATH";
+
+source ~/dotfiles/shells/aliases
+
+# Load the shell dotfiles, and then some:
+# * ~/.path can be used to extend `$PATH`.
+for file in ~/dotfiles/shells/bash.d/{path,prompt,history,exports,aliases,functions,extra}; do
+	[ -r "$file" ] && [ -f "$file" ] && source "$file";
+done;
+unset file;
+
+# Add tab completion for many Bash commands
+brew_source "share/bash-completion/bash_completion"
+if [ -z "$BASH_COMPLETION_COMPAT_DIR" ] && [ -f /etc/bash_completion ]; then
+	source /etc/bash_completion;
+fi;
+
+brew_source "etc/bash_completion.d/git-completion.bash"
+brew_source "etc/bash_completion.d/git-prompt.sh"
+
+# use this for commands and things that should only be local
+if [ -e ~/.bash_local ]; then
+	source ~/.bash_local
+fi
+
+
+
+
+
+

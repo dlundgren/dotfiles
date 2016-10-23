@@ -1,0 +1,168 @@
+cmap w!! w !sudo tee % >/dev/null
+set background=dark     " we usually use dark backgrounds
+set expandtab                 " expand tabs
+set softtabstop=4
+set tabstop=4
+
+if has("eval")
+    let g:host_name = split(hostname(), '\.')
+    fun! GetHostName()
+        return g:host_name[0]
+    endfun
+endif
+set statusline=%{GetHostName()}
+if has("eval")
+    let g:scm_cache = {}
+    fun! ScmInfo()
+        let l:key = getcwd()
+        if ! has_key(g:scm_cache, l:key)
+            if (isdirectory(getcwd() . "/.git"))
+                let g:scm_cache[l:key] = "[" . substitute(readfile(getcwd() . "/.git/HEAD", "", 1)[0],
+                            \ "^.*/", "", "") . "]"
+            else
+                let g:scm_cache[l:key] = ""
+            endif
+        endif
+        return g:scm_cache[l:key]
+    endfun
+    set statusline+=%{ScmInfo()}             " scm info
+endif
+set statusline+=:\ %<%F%h\ %1*%m%*%r
+
+set statusline+=%=\L\i\n\e\ %l\ \o\f\ %L,\C\o\l\ %c%V\ %P
+set laststatus=2
+set backspace=indent,eol,start
+set sw=4  " shiftwidth of 4
+"#set foldmethod=marker
+set sm
+set scrolloff=3
+set sidescrolloff=2
+set so=3
+set nobackup		" do not keep a backup file, use versions instead
+set viminfo='20,\"50	" read/write a .viminfo file, don't store more
+			" than 50 lines of registers
+set history=50		" keep 50 lines of command line history
+set ruler		" show the cursor position all the time
+let mapleader=","
+nmap    <leader>bug      yiwo$GLOBALS['o_error']->debug(<esc>pa, '<esc>pa', __LINE__, __FILE__);<esc>
+
+" Switch syntax highlighting on, when the terminal has colors
+" Also switch on highlighting the last used search pattern.
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+endif
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Files, backups and undo
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Turn backup off, since most stuff is in SVN, git anyway...
+set nobackup
+set nowb
+set noswapfile
+
+"Persistent undo
+try
+    if MySys() == "windows"
+      set undodir=C:\Windows\Temp
+    else
+      set undodir=~/.vim_runtime/undodir
+    endif
+
+    set undofile
+catch
+endtry
+
+
+" Only do this part when compiled with support for autocommands.
+if has("autocmd")
+
+ " In text files, always limit the width of text to 78 characters
+ " autocmd BufRead *.txt set tw=78
+
+ augroup cprog
+  " Remove all cprog autocommands
+  au!
+
+  " When starting to edit a file:
+  "   For C and C++ files set formatting of comments and set C-indenting on.
+  "   For other files switch it off.
+  "   Don't change the order, it's important that the line with * comes first.
+  "autocmd FileType *      set formatoptions=tcql nocindent comments&
+  autocmd FileType c,cpp  set formatoptions=croql cindent comments=sr:/*,mb:*,el:*/,://
+ augroup END
+
+ augroup gzip
+  " Remove all gzip autocommands
+  au!
+
+  " Enable editing of gzipped files
+  " set binary mode before reading the file
+  autocmd BufReadPre,FileReadPre	*.gz,*.bz2 set bin
+  autocmd BufReadPost,FileReadPost	*.gz call GZIP_read("gunzip")
+  autocmd BufReadPost,FileReadPost	*.bz2 call GZIP_read("bunzip2")
+  autocmd BufWritePost,FileWritePost	*.gz call GZIP_write("gzip")
+  autocmd BufWritePost,FileWritePost	*.bz2 call GZIP_write("bzip2")
+  autocmd FileAppendPre			*.gz call GZIP_appre("gunzip")
+  autocmd FileAppendPre			*.bz2 call GZIP_appre("bunzip2")
+  autocmd FileAppendPost		*.gz call GZIP_write("gzip")
+  autocmd FileAppendPost		*.bz2 call GZIP_write("bzip2")
+
+  " After reading compressed file: Uncompress text in buffer with "cmd"
+  fun! GZIP_read(cmd)
+    " set 'cmdheight' to two, to avoid the hit-return prompt
+    let ch_save = &ch
+    set ch=3
+    " when filtering the whole buffer, it will become empty
+    let empty = line("'[") == 1 && line("']") == line("$")
+    let tmp = tempname()
+    let tmpe = tmp . "." . expand("<afile>:e")
+    " write the just read lines to a temp file "'[,']w tmp.gz"
+    execute "'[,']w " . tmpe
+    " uncompress the temp file "!gunzip tmp.gz"
+    execute "!" . a:cmd . " " . tmpe
+    " delete the compressed lines
+    '[,']d
+    " read in the uncompressed lines "'[-1r tmp"
+    set nobin
+    execute "'[-1r " . tmp
+    " if buffer became empty, delete trailing blank line
+    if empty
+      normal Gdd''
+    endif
+    " delete the temp file
+    call delete(tmp)
+    let &ch = ch_save
+    " When uncompressed the whole buffer, do autocommands
+    if empty
+      execute ":doautocmd BufReadPost " . expand("%:r")
+    endif
+  endfun
+
+  " After writing compressed file: Compress written file with "cmd"
+  fun! GZIP_write(cmd)
+    if rename(expand("<afile>"), expand("<afile>:r")) == 0
+      execute "!" . a:cmd . " <afile>:r"
+    endif
+  endfun
+
+  " Before appending to compressed file: Uncompress file with "cmd"
+  fun! GZIP_appre(cmd)
+    execute "!" . a:cmd . " <afile>"
+    call rename(expand("<afile>:r"), expand("<afile>"))
+  endfun
+
+ augroup END
+
+ " This is disabled, because it changes the jumplist.  Can't use CTRL-O to go
+ " back to positions in previous files more than once.
+ " When editing a file, always jump to the last cursor position.
+ " This must be after the uncompress commands.
+ au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
+
+ autocmd BufEnter * :cd %:p:h
+
+  " setup for cvs entries
+  au FileType cvs set tw=72 fo=tro comments=:*,:@,:- | execute "normal I* "
+
+endif " has("autocmd")

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+#-------------------------------------------------------------------------------
+# Custom Prompt
+#-------------------------------------------------------------------------------
+if [ -f ~/.git-completion.bash ]; then
+    source ~/.git-completion.bash
+    # Select git info displayed, see /usr/lib/git-core/git-sh-prompt for more
+    export GIT_PS1_SHOWCOLORHINTS=1
+    export GIT_PS1_SHOWDIRTYSTATE=1           # '*'=unstaged, '+'=staged
+    export GIT_PS1_SHOWSTASHSTATE=1           # '$'=stashed
+    export GIT_PS1_SHOWUNTRACKEDFILES=1       # '%'=untracked
+    export GIT_PS1_SHOWUPSTREAM="verbose"     # 'u='=no difference, 'u+1'=ahead by 1 commit
+    export GIT_PS1_STATESEPARATOR=''          # No space between branch and index status
+    export GIT_PS1_DESCRIBE_STYLE="describe"  # detached HEAD style:
+    #export PROMPT_COMMAND='__git_ps1'
+    #export PS1='\u \w$(__git_ps1)\$ '
+    #export PS1='${PROMPT_START}${PROMPT_DIR}$(__git_ps1 "(%s)")${PROMPT_END}'
+else
+	__git_ps1() {
+	}
+fi
+
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color | xterm-256color) color_prompt=yes;;
+esac
+
+if [ "$color_prompt" = yes ]; then
+    PROMPT_START='${debian_chroot:+($debian_chroot)}$(smiley) \[\033[01;32m\]\u@\h\[\033[00m\]:'
+    PROMPT_DIR='\[\033[01;34m\]\w'
+    PROMPT_END='\[\033[00m\]$(__git_ps1)\$ '
+else
+    PROMPT_START='${debian_chroot:+($debian_chroot)}$(smiley) \u@\h:'
+    PROMPT_DIR='\w'
+    PROMPT_END='$(__git_ps1)\$ '
+fi
+PS1="${PROMPT_START}${PROMPT_DIR}${PROMPT_END}"
+unset color_prompt force_color_prompt

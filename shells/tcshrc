@@ -1,0 +1,21 @@
+setenv EDITOR /usr/bin/vim
+
+set correct=command
+# my aliases
+alias cping /sbin/ping -n -c 5 -t 2
+
+# start ssh agent if not started yet
+set SSH_ENV = "$HOME/.ssh/environment"
+unset SSH_AGENT_RUNNING
+if (-f $SSH_ENV) then
+  source $SSH_ENV
+  ps $SSH_AGENT_PID > /dev/null && set SSH_AGENT_RUNNING
+endif
+if ($?prompt && ! $?SSH_AGENT_RUNNING) then
+  echo "Initializing SSH agent..."
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' >! $SSH_ENV
+  chmod 600 $SSH_ENV
+  source $SSH_ENV
+  echo "done: ssh-agent is now running, PID $SSH_AGENT_PID"
+  /usr/bin/ssh-add
+endif
