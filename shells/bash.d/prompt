@@ -17,8 +17,9 @@ if [ -f ~/.git-completion.bash ]; then
     #export PS1='\u \w$(__git_ps1)\$ '
     #export PS1='${PROMPT_START}${PROMPT_DIR}$(__git_ps1 "(%s)")${PROMPT_END}'
 else
-	__git_ps1() {
-	}
+__git_ps1() {
+	$1
+}
 fi
 
 
