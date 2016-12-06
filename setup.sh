@@ -1,15 +1,14 @@
 #!/bin/sh
 
-BASEDIR=$(dirname "$0")
-
-if [ -f "/etc/lsb-release" ]; then
-	source /etc/lsb-release
+DIR=$(dirname $0)
+if [ "$DIR" = "." ]; then
+	DIR=$(pwd)
 fi
 
 echo "==> Detecting OS"
 platform="unknown"
-case "$OSTYPE" in
-	darwin*)
+case $(uname) in
+	[Dd]arwin*)
 		platform="mac"
 		;;
 	FreeBSD)
@@ -30,11 +29,12 @@ if [ "unknown" = "${platform}" ]; then
 	exit 1
 fi
 echo "--> ${platform}"
+echo "PLATFORM=${platform}" > $DIR/private/platform
 
 echo "==> Linking dotfiles"
-pwd=$(pwd)
 cd ~ || exit 1
-sh $BASEDIR/setup/links.sh
-sh $BASEDIR/setup/${platform}/links.sh
+
+sh $DIR/setup/links.sh
+sh $DIR/setup/${platform}/links.sh
 
 echo "==> Complete!"

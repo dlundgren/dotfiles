@@ -1,4 +1,3 @@
-if [ $(uname) = "Darwin" ]; then
 	alias flushdns='dscacheutil -flushcache;sudo killall -HUP mDNSResponder'
 	alias shadowno='defaults write com.apple.screencapture disable-shadow -bool true && killall SystemUIServer'
 	alias shadowyes='defaults delete com.apple.screencapture disable-shadow && killall SystemUIServer'
@@ -9,9 +8,8 @@ if [ $(uname) = "Darwin" ]; then
 	alias speedtest='speedtest-cli'
 	#alias scheme="rlwrap scheme"
 	#alias scheme="rlwrap scheme-r5rs"
-	### stop correction intrusion
-	alias sass='nocorrect sass'
-	alias vagrant='nocorrect vagrant'
-	alias chef='nocorrect chef'
-	alias knife='nocorrect knife'
-fi
+
+	### basics
+	alias sha256sum='shasum -a 256'
+	alias sha1sum='shasum -a 1'
+	alias sha512sum='shasum -a 512'
