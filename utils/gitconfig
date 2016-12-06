@@ -8,6 +8,8 @@
 [alias]
 	pu = !"git fetch origin -v; git fetch upstream -v; git merge upstream/master"
 	poo = !"git fetch origin -v; git fetch outsideopen -v; git merge outsideopen/master"
+	psi = !"git fetch origin -v; git fetch syberisle -v; git merge syberisle/master"
+	pff = !"git fetch origin -v; git fetch fastframe -v; git merge fastframe/master"
 [core]
 	excludesfile = ~/.gitignore_global
 	autocrlf = input
