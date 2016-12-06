@@ -6,6 +6,11 @@
 # colors
 RESTORE=$(echo -e '\033[0m')
 
+LRED=$(tput setaf 1)
+LGREEN=$(tput setaf 2)
+LYELLOW=$(tput setaf 3)
+
+
 RED='\[\033[00;31m\]'
 GREEN='\[\033[00;32m\]'
 YELLOW='\[\033[00;33m\]'
@@ -14,9 +19,12 @@ PURPLE='\[\033[00;35m\]'
 CYAN='\[\033[00;36m\]'
 LIGHTGRAY='\[\033[00;37m\]'
 
-LRED=$(echo -e '\033[01;31m')
-LGREEN=$(echo -e "\033[01;32m")
-LYELLOW='\[\033[01;33m\]'
+
+#LGREEN=$(tput setaf 2)
+#LGREEN='\033[01;32m'
+#LRED=$(echo -e '\e[01;31m')
+#LGREEN=$(echo -e "\033[01;32m")
+#LYELLOW='\[\033[01;33m\]'
 LBLUE=$(echo -e '\033[01;34m')
 LPURPLE='\[\033[01;35m\]'
 LCYAN='\[\033[01;36m\]'
@@ -37,25 +45,21 @@ case "$TERM" in
     xterm-color | xterm-256color) color_prompt=yes;;
 esac
 
+if [ ! -f "$brew_prefix/etc/bash_completion.d/git-completion.bash" ]; then
+__git_ps1() {
+	$1
+}
+fi
+
 if [ "$color_prompt" = yes ]; then
     PROMPT_START='${debian_chroot:+($debian_chroot)}$(smiley) ${LGREEN}\u@\h${RESTORE}:'
     PROMPT_DIR='$LBLUE\w$RESTORE'
     PROMPT_END='\$ '
+    PS1='\[\033[00;33m\]\A\[$RESTORE\] :: '
+    PS1=$PS1'\[\033[01;32m\]\u@\h\[\033[00m\] :: '
+    PS1=$PS1'\[\033[01;34m\]\w\[\033[00m\]${debian_chroot:+($debian_chroot)} $(__git_ps1 " (%s)")\[\033[00m\]\n$(smiley) \$ '
 else
     PROMPT_START='${debian_chroot:+($debian_chroot)}$(smiley) \u@\h:'
     PROMPT_DIR='\w'
     PROMPT_END='\$ '
-fi
-PS1="${PROMPT_START}${PROMPT_DIR}${PROMPT_END}"
-#unset color_prompt force_color_prompt
-
-if [ -f "$brew_prefix/etc/bash_completion.d/git-completion.bash" ]; then
-	export PROMPT_COMMAND='__git_ps1 "${VIRTUAL_ENV:+${LYELLOW}[`basename $VIRTUAL_ENV`]${RESTORE} }${PROMPT_START}${PROMPT_DIR}" "\$ "'
-    #export PROMPT_COMMAND='__git_ps1 "${VIRTUAL_ENV:+[`basename $VIRTUAL_ENV`]}" '
-    #export PS1='\u \w$(__git_ps1)\$ '
-    #export PS1='${PROMPT_START}${PROMPT_DIR}$(__git_ps1 "(%s)")${PROMPT_END}'
-else
-__git_ps1() {
-	$1
-}
 fi

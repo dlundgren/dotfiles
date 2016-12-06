@@ -181,8 +181,8 @@ smiley() {
         fi
   else
       if [ $err == 0 ]
-      then echo '^-^'
-      else echo "${LRED}-.- $err${RESTORE}"
+      then echo '^_^'
+      else echo '-.-'
       fi
   fi
 }
