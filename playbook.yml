@@ -24,6 +24,15 @@
       - vagrant-manager
       - virtualbox
       - vlc
+      - gpg-suite
+      - adobe-creative-cloud
+      - gas-mask
+      - sourcetree
+      - mysql-workbench
+      - rambox
+      - slack
+      - jetbrains-toolbox
+      - moom
     brew_taps:
       - caskroom/cask
       - caskroom/versions # for sublime-text3
