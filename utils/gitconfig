@@ -11,13 +11,13 @@
 	psi = !"git fetch origin -v; git fetch syberisle -v; git merge syberisle/master"
 	pff = !"git fetch origin -v; git fetch fastframe -v; git merge fastframe/master"
 [core]
-	excludesfile = ~/.gitignore_global
+	excludesfile = /Users/dlundgren/.gitignore_global
 	autocrlf = input
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path =
+	path = 
 [mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	cmd = /Users/dlundgren/Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
 [color]
     branch = auto
