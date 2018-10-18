@@ -1,7 +1,9 @@
 ---
 - hosts: all
   vars:
-    ansible_ssh_username: dlundgren
+    home: "{{ lookup('env', 'HOME' }}"
+    ansible_ssh_username: "{{ lookup('env','USER') }}"
+    dotfile_repo_username: "{{ lookup('env','USER') }}"
     applications:
       - 1password
       - alfred
@@ -11,14 +13,10 @@
       - firefox
       - google-chrome
       - iterm2
-      #- karabiner
       - keka
       - nvalt
-      #- packer
-      #- seil
-      #- shuttle
       - skype
-      - sublime-text3
+      - sublime-text
       - thunderbird
       - tunnelblick
       - vagrant
@@ -29,23 +27,18 @@
       - adobe-creative-cloud
       - gas-mask
       - sourcetree
-      - mysql-workbench
+      - mysqlworkbench
       - rambox
       - slack
       - jetbrains-toolbox
       - moom
     brew_taps:
       - caskroom/cask
-      - caskroom/versions # for sublime-text3
-      - homebrew/binary
-      - homebrew/dupes
-      - homebrew/versions
-    dotfile_repo_username: dlundgren
+      - caskroom/versions
     brew_utils:
       - autoconf
       - autojump
       - bash
-      - cowsay
       - git
       - go
       - gpg
@@ -53,14 +46,10 @@
       - mtr
       - openssl
       - ssh-copy-id
-    home: "{{ lookup('env', 'HOME' }}"
   tasks:
     - name: HOMEBREW | Install required Taps
       command: "/usr/local/bin/brew tap {{ item }}"
       with_items: "{{ brew_taps }}"
-
-    #- name: HOMEBREW | Install Cask
-    #  command: /usr/local/bin/brew install brew-cask
 
     - name: UTILS | Install
       homebrew:
@@ -77,39 +66,14 @@
       with_items: "{{ applications }}"
       ignore_errors: true
 
+    - set_fact:
+        installed_applications: "{{ installed_applications.results|map(attribute='stdout') }}"
+
     - name: CASKS | install
       shell: /usr/local/bin/brew cask install {{ item }}
       with_items: "{{ applications }}"
-      when: "{{ item not in installed_applications.results|map(attribute='stdout') }}"
+      when: item not in installed_applications
 
 #    - name: SETUP | system settings
 #      script: setup/system_settings.sh
 #      sudo: true
-
-#    - name: DOTFILES | Check for rcm
-#      stat:
-#        path: /usr/local/bin/rcup
-#      register: rcm_installed
-#
-#    - name: DOTFILES | Install rcm
-#      shell: brew tap thoughtbot/formulae && brew install rcm
-#      when: rcm_installed.stat.exists == false
-#
-#    - name: DOTFILES | Check .dotfiles exists
-#      stat:
-#        path: ~/.dotfiles/
-#      register: src_dir_exists
-#    - name: DOTFILES | Ensure .dotfiles exists
-#      file:
-#        path: ~/.dotfiles
-#        state: directory
-#    - name: DOTFILES | Clone thoughtbot/dotfiles
-#      git:
-#        repo: https://github.com/thoughtbot/dotfiles.git
-#        dest: ~/.dotfiles/thoughtbot
-#    - name: DOTFILES | Clone User dotfiles
-#      git:
-#        repo: "https://github.com/{{ dotfile_repo_username }}/dotfiles.git"
-#        dest: "~/.dotfiles/{{ dotfile_repo_username }}"
-#    - name: DOTFILES | Generate dotfiles
-#      shell: "env RCRC=~/.dotfiles/{{dotfile_repo_username}} rcup"
