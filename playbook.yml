@@ -1,9 +1,7 @@
 ---
 - hosts: all
   vars:
-    home: "{{ lookup('env', 'HOME' }}"
     ansible_ssh_username: "{{ lookup('env','USER') }}"
-    dotfile_repo_username: "{{ lookup('env','USER') }}"
     applications:
       - 1password
       - alfred
