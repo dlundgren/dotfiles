@@ -159,9 +159,13 @@ svn_uplog() {
 }
 genpass()
 {
-    cat /dev/urandom | tr -d -c 'a-zA-Z0-9' | fold -w 8 | head -1
+    env LC_CTYPE=C tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${1:-8} | xargs
+#    cat /dev/urandom | tr -d -c a-zA-Z0-9 | fold -w 8 | head -1
 }
-
+hexpass()
+{
+    env LC_CTYPE=C tr -dc a-f0-9 < /dev/urandom | head -c ${1:-8} | xargs
+}
 function srch () {
     if [ $# = 0 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
         echo -e "Find a word in files under the current directory ignoring .svn, log files and backups. Usage ${RED_FG}'srch word'$NC"

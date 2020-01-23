@@ -11,6 +11,9 @@ HISTIGNORE="cd:ls:[bf]g:clear:exit"
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+PROMPT_COMMAND='history -a'
+HISTTIMEFORMAT="%F %T "
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
-HISTFILESIZE=2000
+HISTFILESIZE=99999

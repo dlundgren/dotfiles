@@ -13,3 +13,12 @@
 	alias sha256sum='shasum -a 256'
 	alias sha1sum='shasum -a 1'
 	alias sha512sum='shasum -a 512'
+
+    ### vagrant
+    alias vangrant='vagrant'
+    alias vangrat='vagrant'
+    alias vs='vagrant status'
+    alias vu='vagrant up'
+    alias vh='vagrant halt'
+    alias vr='vagrant reload'
+    alias vp='vagrant provision'
