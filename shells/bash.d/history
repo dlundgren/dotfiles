@@ -6,7 +6,7 @@
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
 HISTCONTROL=ignoredups:ignorespace
-HISTIGNORE="cd:ls:[bf]g:clear:exit"
+HISTIGNORE='cd:ls:[bf]g:clear:exit:history*'
 
 # append to the history file, don't overwrite it
 shopt -s histappend
