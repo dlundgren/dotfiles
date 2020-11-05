@@ -13,7 +13,7 @@ if [ "x$newsha" = "x$headsha" ]; then
     exit 1
 fi
 
-version=$(git describe --tags "$($newsha)")
+version=$(git describe --tags "${newsha}")
 if [[ ! "$version" =~ ^([^0-9]*)([1-9][0-9]+|[0-9])\.([1-9][0-9]+|[0-9])\.([1-9][0-9]+|[0-9])(.*) ]]; then
     echo "the latest tag doesn't match semver format requirement" 1>&2
     exit 1
