@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Simple script for tagging and pushing a release
+#
+# @license MIT
+# @author  dlundgren@syberisle.net
+#
+
+newsha=$(git rev-list --tags --max-count=1)
+headsha=$(git rev-list HEAD --max-count=1)
+if [ "x$newsha" = "x$headsha" ]; then
+    echo "this master has already been released"
+    exit 1
+fi
+
+version=$(git describe --tags "$($newsha)")
+if [[ ! "$version" =~ ^([^0-9]*)([1-9][0-9]+|[0-9])\.([1-9][0-9]+|[0-9])\.([1-9][0-9]+|[0-9])(.*) ]]; then
+    echo "the latest tag doesn't match semver format requirement" 1>&2
+    exit 1
+fi
+
+case $1 in
+  help)
+    echo "
+USAGE: git-release [major|minor|patch]
+    major   Increment the major version. ie - 1.0.1 > 2.0.0
+    minor   Increment the minor version. ie - 1.0.1 > 1.1.0
+    patch   Increment the patch version. ie - 1.0.1 > 1.0.2
+
+    if major|minor|patch is not specified then patch will be used
+"
+    exit 1
+    ;;
+  major)
+    version=$(echo ${version} | awk -F. -v OFS=. '{$1++;print $1,0,0}')
+    ;;
+  minor)
+    version=$(echo ${version} | awk -F. -v OFS=. '{$2++;print $1,$2,0}')
+    ;;
+  *)
+    version=$(echo ${version} | awk -F. -v OFS=. '{$3++;print $1,$2,$3}')
+    ;;
+esac
+
+# shellcheck disable=SC2086
+echo "... releasing ${version}"
+
+git tag $version -a -m "Release ${version}" \
+    && git push $remote --tags \
+    && git push $remote \
+    && echo "... complete"

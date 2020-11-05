@@ -9,3 +9,5 @@
 [ ! -e ~/bin/composer ] && ln -s ~/bin/composer.phar ~/bin/composer
 [ ! -e ~/bin/deployer ] && ln -s ~/bin/deployer.phar ~/bin/deployer
 
+# link our bins
+find ~/dotfiles/bin/ -maxdepth 1 -print "%P\n" | while read file; do ln -s ~/bin/$file $file; done

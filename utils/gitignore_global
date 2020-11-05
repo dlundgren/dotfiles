@@ -1,4 +1,5 @@
 # be a good citizen
+.vagrant/
 .idea/
 *~
 .DS_Store

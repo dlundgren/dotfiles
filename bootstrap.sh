@@ -37,4 +37,4 @@ if ! command -v ansible >/dev/null; then
 fi
 
 echo "==> Running ansible playbook"
-ansible-playbook playbook.yml -i localhost, -kK
+ansible-playbook playbook.yml -i localhost, -K

@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# Simple script for updating the version in a wordpress themes style.css manually
+#
+# @license MIT
+# @author  dlundgren@syberisle.net
+#
+
+CURDIR=$(dirname $0)
+ROOTDIR=$(cd ${CURDIR}/.. && pwd)
+STYLE_CSS_FILE="${ROOTDIR}/style.css"
+CURVER=$(grep Version: "${STYLE_CSS_FILE}" | awk 'BEGIN {FS=":";} { print $2 }' | xargs)
+
+case $1 in
+  help)
+    echo "
+USAGE: update-version.sh [major|minor|patch]
+    major   Increment the major version. ie - 1.0.1 > 2.0.0
+    minor   Increment the minor version. ie - 1.0.1 > 1.1.0
+    patch   Increment the patch version. ie - 1.0.1 > 1.0.2
+"
+    exit 1
+    ;;
+  major)
+    NEWVER=$(echo ${CURVER} | awk -F. -v OFS=. '{$1++;print $1,0,0}')
+    ;;
+  minor)
+    NEWVER=$(echo ${CURVER} | awk -F. -v OFS=. '{$2++;print $1,$2,0}')
+    ;;
+  *)
+    NEWVER=$(echo ${CURVER} | awk -F. -v OFS=. '{$3++;print $1,$2,$3}')
+    ;;
+esac
+
+echo "==> Current version: ${CURVER}"
+echo "==> New version: ${NEWVER}"
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  sed -i '' -e "s~Version: ${CURVER}~Version: ${NEWVER}~g" "${STYLE_CSS_FILE}"
+else
+  sed -i -e "s~Version: ${CURVER}~Version: ${NEWVER}~g" "${STYLE_CSS_FILE}"
+fi

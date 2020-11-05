@@ -17,12 +17,13 @@
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
 [mergetool "sourcetree"]
-	cmd = /Users/dlundgren/Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
 [color]
     branch = auto
     diff = auto
     status = auto
+	ui = false
 [color "branch"]
     current = yellow reverse
     local = yellow
@@ -36,3 +37,5 @@
     added = yellow
     changed = green
     untracked = cyan
+[protocol "keybase"]
+	allow = always
