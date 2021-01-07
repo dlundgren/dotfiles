@@ -1,27 +1,31 @@
-	alias flushdns='dscacheutil -flushcache;sudo killall -HUP mDNSResponder'
-	alias shadowno='defaults write com.apple.screencapture disable-shadow -bool true && killall SystemUIServer'
-	alias shadowyes='defaults delete com.apple.screencapture disable-shadow && killall SystemUIServer'
-	alias sortlaunchpad='defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock'
-	alias brewdoc='brew update && brew doctor'
-	alias brewup='brew update && brew doctor && brew upgrade; brew cleanup; brew prune'
-	#alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
-	alias speedtest='speedtest-cli'
-	#alias scheme="rlwrap scheme"
-	#alias scheme="rlwrap scheme-r5rs"
+switchphp() {
+    brew unlink php && brew link --force --overwrite php@$1
+}
 
-	### basics
-	alias sha256sum='shasum -a 256'
-	alias sha1sum='shasum -a 1'
-	alias sha512sum='shasum -a 512'
+alias flushdns='dscacheutil -flushcache;sudo killall -HUP mDNSResponder'
+alias shadowno='defaults write com.apple.screencapture disable-shadow -bool true && killall SystemUIServer'
+alias shadowyes='defaults delete com.apple.screencapture disable-shadow && killall SystemUIServer'
+alias sortlaunchpad='defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock'
+alias brewdoc='brew update && brew doctor'
+alias brewup='brew update && brew doctor && brew upgrade; brew cleanup; brew prune'
+#alias speedtest='wget -O /dev/null http://speedtest.wdc01.softlayer.com/downloads/test10.zip'
+alias speedtest='speedtest-cli'
+#alias scheme="rlwrap scheme"
+#alias scheme="rlwrap scheme-r5rs"
 
-    ### vagrant
-    alias vangrant='vagrant'
-    alias vangrat='vagrant'
-    alias vs='vagrant status'
-    alias vu='vagrant up'
-    alias vh='vagrant halt'
-    alias vr='vagrant reload'
-    alias vp='vagrant provision'
+### basics
+alias sha256sum='shasum -a 256'
+alias sha1sum='shasum -a 1'
+alias sha512sum='shasum -a 512'
 
-    ### vscode
-    alias vscode='"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"'
+### vagrant
+alias vangrant='vagrant'
+alias vangrat='vagrant'
+alias vs='vagrant status'
+alias vu='vagrant up'
+alias vh='vagrant halt'
+alias vr='vagrant reload'
+alias vp='vagrant provision'
+
+### vscode
+alias vscode='"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"'
