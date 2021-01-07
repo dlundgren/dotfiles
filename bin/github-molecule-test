@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Simple script for running molecule tests when they are setup for github actions
+#
+# @license MIT
+# @author  dlundgren@syberisle.net
+#
+
+molecule_run_against_distro() {
+  echo "==> $1 ($3)"
+  if [ "x$2" == "x-v" ]; then
+    MOLECULE_DISTRO="$1" pipenv run molecule $3
+  else
+    MOLECULE_DISTRO="$1" pipenv run molecule $3 > "molecule/$1.log"
+  fi
+  if [ "$?" -eq 0 ]; then
+    echo "    success"
+  else
+    echo "    failed"
+  fi
+}
+
+distro=$1
+verbose=$2
+if [ "x$verbose" == "x-v" ]; then
+  cmd=$3
+  cmd=${cmd:=test}
+else
+  cmd=${verbose:=test}
+fi
+
+if [ "x$distro" == "x" ]; then
+  for distro in $(grep 'distro:' .github/workflows/ci.yml | awk '{ print $3}')
+  do
+      molecule_run_against_distro $distro $verbose $cmd
+  done
+else
+  molecule_run_against_distro $distro $verbose $cmd
+fi
