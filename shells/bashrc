@@ -2,6 +2,9 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+# Fix Apple stupidity
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
@@ -21,3 +24,9 @@ PERL_MM_OPT="INSTALL_BASE=/Users/dlundgren/perl5"; export PERL_MM_OPT;
 
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 gpgconf --launch gpg-agent
+
+PATH="/Users/dlundgren/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/Users/dlundgren/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/Users/dlundgren/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/Users/dlundgren/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/Users/dlundgren/perl5"; export PERL_MM_OPT;

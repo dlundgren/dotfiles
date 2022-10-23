@@ -1,3 +1,6 @@
+# Fix Apple stupidity
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
 # Add ~/bin to the path
 export PATH="$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH:./bin";
 
@@ -32,8 +35,20 @@ if [ -e ~/.bash_local ]; then
 	source ~/.bash_local
 fi
 
-source ~/perl5/perlbrew/etc/bashrc
+if [ -e ~/perl5/perlbrew/etc/bashrc ]; then
+    source ~/perl5/perlbrew/etc/bashrc
+fi
 
 CERT_PATH=$(python3 -m certifi)
 export SSL_CERT_FILE=${CERT_PATH}
 export REQUESTS_CA_BUNDLE=${CERT_PATH}
+export PHPENV_ROOT="${HOME}/.phpenv"
+if [[ -d "${PHPENV_ROOT}" ]]; then
+  export PATH="${PHPENV_ROOT}/bin:${PATH}";
+  eval "$(phpenv init -)";
+fi
+export NODENV_ROOT="${HOME}/.nodenv"
+if [[ -d "${NODENV_ROOT}" ]]; then
+  export PATH="${NODENV_ROOT}/bin:${PATH}";
+  eval "$(nodenv init -)";
+fi

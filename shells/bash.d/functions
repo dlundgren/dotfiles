@@ -159,12 +159,12 @@ svn_uplog() {
 }
 genpass()
 {
-    env LC_CTYPE=C tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${1:-8} | xargs
+    env LC_ALL=C tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${1:-8} | xargs
 #    cat /dev/urandom | tr -d -c a-zA-Z0-9 | fold -w 8 | head -1
 }
 hexpass()
 {
-    env LC_CTYPE=C tr -dc a-f0-9 < /dev/urandom | head -c ${1:-8} | xargs
+    env LC_ALL=C tr -dc a-f0-9 < /dev/urandom | head -c ${1:-8} | xargs
 }
 function srch () {
     if [ $# = 0 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
@@ -201,4 +201,50 @@ sanitize()
 {
   chmod -R u=rwX,go=rX "$@"
   chown -R ${USER}:users "$@"
+}
+
+# mac - MAC address lookup
+mac()
+{
+    local MAC=$(echo $1 | sed 's/[^0-9a-f]/\U&/gi' | grep -E "^[0-9a-fA-F]{12}$")
+    if [ "$MAC" = "" ]; then
+        echo "Invalid MAC Address: $1"
+        return 1
+    fi
+    echo $(curl -s -q https://api.macvendors.com/${MAC})
+}
+
+# lmac - local MAC address lookup
+lmac()
+{
+    local MAC=$(echo $1 | sed 's/[^0-9a-f]//gi' | grep -E "^[0-9a-fA-F]{12}$" | tr [:lower:] [:upper:])
+    if [ "$MAC" = "" ]; then
+        echo "Invalid MAC Address: $1"
+        return 1
+    fi
+
+    local SMAC=$(echo $MAC | cut -c1-9)
+    local ORG=$(xsv search -s 2 $SMAC ~/.local/mac-s.csv -n)
+    local ORGLIST="ma-s"
+    if [ "$ORG" = "" ]; then
+        SMAC=$(echo $MAC | cut -c1-7)
+        ORG=$(xsv search -s 2 $SMAC ~/.local/mac-m.csv -n)
+        ORGLIST="ma-m"
+        if [ "$ORG" = "" ]; then
+            SMAC=$(echo $MAC | cut -c1-6)
+            ORG=$(xsv search -s 2 $SMAC ~/.local/mac-l.csv -n)
+            ORGLIST="ma-l"
+        fi
+    fi
+
+    ORG=$(echo $ORG | xsv select 3 | xsv table)
+    printf "%s = %s (%s)\n" "$SMAC" "$ORG" "$ORGLIST"
+}
+
+# lmac_update - Downloads the local MAC address lookup tables for L/M/S identifiers
+lmac_update()
+{
+    curl -L -o ~/.local/mac-s.csv http://standards-oui.ieee.org/oui36/oui36.csv
+    curl -L -o ~/.local/mac-m.csv http://standards-oui.ieee.org/oui28/mam.csv
+    curl -L -o ~/.local/mac-l.csv http://standards-oui.ieee.org/oui/oui.csv
 }

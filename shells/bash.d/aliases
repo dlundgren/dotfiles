@@ -27,6 +27,14 @@ alias h='history -r | less'
 alias more='less'
 alias ping='/sbin/ping -c 5'
 
+# DNS (bash-my-dns-host)
+alias ns='host -t ns'
+alias mx='host -t mx'
+alias txt='host -t txt'
+spf () {
+    host -t txt "$@" | grep spf
+}
+
 if [ "$PLATFORM" = "mac" ]; then
 	source ~/dotfiles/shells/bash.d/aliases-mac
 fi

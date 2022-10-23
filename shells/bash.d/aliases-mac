@@ -27,5 +27,11 @@ alias vh='vagrant halt'
 alias vr='vagrant reload'
 alias vp='vagrant provision'
 
+### docker
+alias dce='docker-compose exec'
+alias dcu='docker-compose up'
+alias dcup='docker-compose up -d'
+alias dcd='docker-compose down'
+
 ### vscode
 alias vscode='"/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"'
