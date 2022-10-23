@@ -217,6 +217,11 @@ mac()
 # lmac - local MAC address lookup
 lmac()
 {
+    if [ "$(which xsv)" = "" ]; then
+        echo "Please install xsv https://github.com/burntsushi/xsv"
+        exit 1
+    fi
+
     local MAC=$(echo $1 | sed 's/[^0-9a-f]//gi' | grep -E "^[0-9a-fA-F]{12}$" | tr [:lower:] [:upper:])
     if [ "$MAC" = "" ]; then
         echo "Invalid MAC Address: $1"
